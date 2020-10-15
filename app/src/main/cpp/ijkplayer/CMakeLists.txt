@@ -77,8 +77,6 @@ add_library( # Sets the name of the library.
         ${ijkpath}/ijkmedia/ijkplayer/android/pipeline/ffpipenode_android_mediacodec_vdec.c
 
         ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/allformats.c
-        ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/cJson.c
-        ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijklas.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijklivehook.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijkmediadatasource.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijkio.c
