@@ -15,6 +15,9 @@ https://github.com/bilibili/ijkplayer.git
 git clone --depth 10 -b ijk-r0.1.2-dev https://github.com/Bilibili/soundtouch.git ijksoundtouch
 放在app/src/main/ijkplayer/ijkmedia
 
-下载ijkplayer
+下载libyuv
 git clone --depth 10 -b ijk-r0.2.1-dev https://github.com/Bilibili/libyuv.git
 放在app/src/main/ijkplayer/ijkmedia
+
+把编译好的ijkmmpeg放到
+app/src/main/cpp/armeabi-v7a/ 下面
