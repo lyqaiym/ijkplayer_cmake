@@ -5,6 +5,7 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+add_definitions(-DLIBYUV_DISABLE_NEON)
 include_directories(${ijkpath}/ijkmedia/libyuv/include)
 include_directories(${ijkpath}/ijkmedia/libyuv/include)
 

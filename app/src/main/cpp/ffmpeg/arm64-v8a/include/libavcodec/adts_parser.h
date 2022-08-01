@@ -1,6 +1,4 @@
 /*
- * copyright (c) 2017 Raymond Zheng
- *
  * This file is part of FFmpeg.
  *
  * FFmpeg is free software; you can redistribute it and/or
@@ -18,21 +16,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVUTIL_DNS_CACHE_H
-#define AVUTIL_DNS_CACHE_H
+#ifndef AVCODEC_ADTS_PARSER_H
+#define AVCODEC_ADTS_PARSER_H
 
-#include "libavutil/log.h"
+#include <stddef.h>
+#include <stdint.h>
 
-typedef struct DnsCacheEntry {
-    volatile int ref_count;
-    volatile int delete_flag;
-    int64_t expired_time;
-    struct addrinfo *res;  // construct by private function, not support ai_next and ai_canonname, can only be released using free_private_addrinfo
-} DnsCacheEntry;
+#define AV_AAC_ADTS_HEADER_SIZE 7
 
-DnsCacheEntry *get_dns_cache_reference(const char *uri);
-int release_dns_cache_reference(const char *uri, DnsCacheEntry **p_entry);
-int remove_dns_cache_entry(const char *uri);
-int add_dns_cache_entry(const char *uri, struct addrinfo *cur_ai, int64_t timeout);
+/**
+ * Extract the number of samples and frames from AAC data.
+ * @param[in]  buf     pointer to AAC data buffer
+ * @param[out] samples Pointer to where number of samples is written
+ * @param[out] frames  Pointer to where number of frames is written
+ * @return Returns 0 on success, error code on failure.
+ */
+int av_adts_header_parse(const uint8_t *buf, uint32_t *samples,
+                         uint8_t *frames);
 
-#endif /* AVUTIL_DNS_CACHE_H */
+#endif /* AVCODEC_ADTS_PARSER_H */

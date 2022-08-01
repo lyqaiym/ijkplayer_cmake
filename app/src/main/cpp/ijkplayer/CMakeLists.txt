@@ -92,6 +92,8 @@ add_library( # Sets the name of the library.
         ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijkurlhook.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijklongurl.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijksegment.c
+        ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijklas.c
+        ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/cJSON.c
 
         ${ijkpath}/ijkmedia/ijkplayer/ijkavutil/ijkdict.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkavutil/ijkutils.c

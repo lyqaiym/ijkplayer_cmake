@@ -1,5 +1,7 @@
 /*
- * copyright (c) 2017 Raymond Zheng
+ * AC-3 parser prototypes
+ * Copyright (c) 2003 Fabrice Bellard
+ * Copyright (c) 2003 Michael Niedermayer
  *
  * This file is part of FFmpeg.
  *
@@ -18,21 +20,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVUTIL_DNS_CACHE_H
-#define AVUTIL_DNS_CACHE_H
+#ifndef AVCODEC_AC3_PARSER_H
+#define AVCODEC_AC3_PARSER_H
 
-#include "libavutil/log.h"
+#include <stddef.h>
+#include <stdint.h>
 
-typedef struct DnsCacheEntry {
-    volatile int ref_count;
-    volatile int delete_flag;
-    int64_t expired_time;
-    struct addrinfo *res;  // construct by private function, not support ai_next and ai_canonname, can only be released using free_private_addrinfo
-} DnsCacheEntry;
+/**
+ * Extract the bitstream ID and the frame size from AC-3 data.
+ */
+int av_ac3_parse_header(const uint8_t *buf, size_t size,
+                        uint8_t *bitstream_id, uint16_t *frame_size);
 
-DnsCacheEntry *get_dns_cache_reference(const char *uri);
-int release_dns_cache_reference(const char *uri, DnsCacheEntry **p_entry);
-int remove_dns_cache_entry(const char *uri);
-int add_dns_cache_entry(const char *uri, struct addrinfo *cur_ai, int64_t timeout);
 
-#endif /* AVUTIL_DNS_CACHE_H */
+#endif /* AVCODEC_AC3_PARSER_H */
