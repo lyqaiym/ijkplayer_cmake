@@ -76,7 +76,8 @@ public class MainActivity extends Activity {
     private void initMediaPlayer(final SurfaceView surfaceView) {
         ijkMediaPlayer = new IjkMediaPlayer();
         try {
-            ijkMediaPlayer.setDataSource("http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8");
+//            ijkMediaPlayer.setDataSource("https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8");
+            ijkMediaPlayer.setDataSource("https://www.w3schools.com/html/mov_bbb.mp4");
             ijkMediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();

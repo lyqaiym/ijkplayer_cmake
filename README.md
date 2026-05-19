@@ -20,4 +20,5 @@ git clone --depth 10 -b ijk-r0.2.1-dev https://github.com/Bilibili/libyuv.git
 放在app/src/main/ijkplayer/ijkmedia
 
 把编译好的ijkmmpeg放到
-app/src/main/cpp/armeabi-v7a/ 下面
+app/src/main/cpp/ffmpeg/armeabi-v7a/
+app/src/main/cpp/ffmpeg/arm64-v8a/ 下面

@@ -47,22 +47,65 @@ set_target_properties(
         PROPERTIES IMPORTED_LOCATION
         ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libandroid-ndk-profiler.so)
 
-add_library(ijkffmpeg SHARED IMPORTED)
+#add_library(ijkffmpeg SHARED IMPORTED)
+#set_target_properties(
+#        ijkffmpeg
+#        PROPERTIES IMPORTED_LOCATION
+#        ${ijkffmpegpath})
+
+add_library(libavcodec STATIC IMPORTED)
 set_target_properties(
-        ijkffmpeg
+        libavcodec
         PROPERTIES IMPORTED_LOCATION
-        ${ijkffmpegpath})
+        ${libavcodecpath})
+
+add_library(libavdevice STATIC IMPORTED)
+set_target_properties(
+        libavdevice
+        PROPERTIES IMPORTED_LOCATION
+        ${libavdevicepath})
+
+add_library(libavfilter STATIC IMPORTED)
+set_target_properties(
+        libavfilter
+        PROPERTIES IMPORTED_LOCATION
+        ${libavfilterpath})
+
+add_library(libavformat STATIC IMPORTED)
+set_target_properties(
+        libavformat
+        PROPERTIES IMPORTED_LOCATION
+        ${libavformatpath})
+
+add_library(libavutil STATIC IMPORTED)
+set_target_properties(
+        libavutil
+        PROPERTIES IMPORTED_LOCATION
+        ${libavutilpath})
+
+add_library(libswresample STATIC IMPORTED)
+set_target_properties(
+        libswresample
+        PROPERTIES IMPORTED_LOCATION
+        ${libswresamplepath})
+
+add_library(libswscale STATIC IMPORTED)
+set_target_properties(
+        libswscale
+        PROPERTIES IMPORTED_LOCATION
+        ${libswscalepath})
 
 add_library( # Sets the name of the library.
         ijkplayer
 
              # Sets the library as a shared library.
              SHARED
-
+        ffmpeg.c
              # Provides a relative path to your source file(s).
              cpu/cpu-features.c
         ${ijkpath}/ijkmedia/ijkplayer/ff_cmdutils.c
         ${ijkpath}/ijkmedia/ijkplayer/ff_ffplay.c
+        ${ijkpath}/ijkmedia/ijkplayer/ffmpeg_old.c
         ${ijkpath}/ijkmedia/ijkplayer/ff_ffpipeline.c
         ${ijkpath}/ijkmedia/ijkplayer/ff_ffpipenode.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkmeta.c
@@ -92,8 +135,8 @@ add_library( # Sets the name of the library.
         ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijkurlhook.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijklongurl.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijksegment.c
-        ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijklas.c
-        ${ijkpath}/ijkmedia/ijkplayer/ijkavformat/cJSON.c
+        #${ijkpath}/ijkmedia/ijkplayer/ijkavformat/ijklas.c
+        #${ijkpath}/ijkmedia/ijkplayer/ijkavformat/cJSON.c
 
         ${ijkpath}/ijkmedia/ijkplayer/ijkavutil/ijkdict.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkavutil/ijkutils.c
@@ -122,7 +165,14 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
                        ijkplayer
-        ijkffmpeg
+        libavcodec
+        libavdevice
+        libavfilter
+        libavformat
+        libavutil
+        libswresample
+        libswscale
+        m
         ijkj4a
         ijksdl
         soundtouch

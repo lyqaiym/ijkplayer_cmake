@@ -11,6 +11,27 @@ message(STATUS "ijkpath=${ijkpath}")
 set(ijkffmpegpath "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${CMAKE_ANDROID_ARCH_ABI}/libijkffmpeg.so")
 message(STATUS "ijkffmpegpath=${ijkffmpegpath}")
 
+set(libavcodecpath "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${CMAKE_ANDROID_ARCH_ABI}/libavcodec.so")
+message(STATUS "libavcodecpath=${libavcodecpath}")
+
+set(libavdevicepath "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${CMAKE_ANDROID_ARCH_ABI}/libavdevice.so")
+message(STATUS "libavcodecpath=${libavcodecpath}")
+
+set(libavfilterpath "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${CMAKE_ANDROID_ARCH_ABI}/libavfilter.so")
+message(STATUS "libavfilterpath=${libavfilterpath}")
+
+set(libavformatpath "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${CMAKE_ANDROID_ARCH_ABI}/libavformat.so")
+message(STATUS "libavformatpath=${libavformatpath}")
+
+set(libavutilpath "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${CMAKE_ANDROID_ARCH_ABI}/libavutil.so")
+message(STATUS "libavutilpath=${libavutilpath}")
+
+set(libswresamplepath "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${CMAKE_ANDROID_ARCH_ABI}/libswresample.so")
+message(STATUS "libswresamplepath=${libswresamplepath}")
+
+set(libswscalepath "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${CMAKE_ANDROID_ARCH_ABI}/libswscale.so")
+message(STATUS "libswscalepath=${libswscalepath}")
+
 set(ijkffmpegincludepath "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${CMAKE_ANDROID_ARCH_ABI}/include")
 message(STATUS "ijkffmpegincludepath=${ijkffmpegincludepath}")
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/${CMAKE_ANDROID_ARCH_ABI}/include)
