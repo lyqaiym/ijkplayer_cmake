@@ -1048,6 +1048,7 @@ typedef struct AVCodecContext {
 
     /* audio only */
     int sample_rate; ///< samples per second
+    int channels;    ///< number of audio channels
 
     /**
      * audio sample format
@@ -1088,6 +1089,20 @@ typedef struct AVCodecContext {
      * - decoding: unused
      */
     int cutoff;
+
+    /**
+     * Audio channel layout.
+     * - encoding: set by user.
+     * - decoding: set by user, may be overwritten by libavcodec.
+     */
+    uint64_t channel_layout;
+
+    /**
+     * Request decoder to use this channel layout if it can (0 for default)
+     * - encoding: unused
+     * - decoding: Set by user.
+     */
+    uint64_t request_channel_layout;
 
     /**
      * Type of service that the audio stream conveys.
@@ -1863,7 +1878,10 @@ typedef struct AVCodecContext {
      * - decoding: set by libavcodec.
      */
     const struct AVCodecDescriptor *codec_descriptor;
-
+    int64_t pts_correction_num_faulty_pts; /// Number of incorrect PTS values so far
+    int64_t pts_correction_num_faulty_dts; /// Number of incorrect DTS values so far
+    int64_t pts_correction_last_pts;       /// PTS of the last frame
+    int64_t pts_correction_last_dts;       /// DTS of the last frame
     /**
      * Character encoding of the input subtitles file.
      * - decoding: set by user
@@ -2081,6 +2099,18 @@ typedef struct AVCodecContext {
     int             nb_decoded_side_data;
 } AVCodecContext;
 
+//#if FF_API_CODEC_GET_SET
+//attribute_deprecated
+//TODO
+//int av_codec_get_max_lowres(const AVCodec *codec);
+//#endif
+
+AVRational av_codec_get_pkt_timebase         (const AVCodecContext *avctx);
+attribute_deprecated
+void       av_codec_set_pkt_timebase         (AVCodecContext *avctx, AVRational val);
+
+int av_codec_get_max_lowres(const AVCodec *codec);
+
 /**
  * @defgroup lavc_hwaccel AVHWAccel
  *
@@ -2251,6 +2281,9 @@ const char *avcodec_configuration(void);
  * Return the libavcodec license.
  */
 const char *avcodec_license(void);
+
+attribute_deprecated
+void avcodec_register_all(void);
 
 /**
  * Allocate an AVCodecContext and set its fields to default values. The
@@ -2439,6 +2472,11 @@ void avcodec_align_dimensions(AVCodecContext *s, int *width, int *height);
  */
 void avcodec_align_dimensions2(AVCodecContext *s, int *width, int *height,
                                int linesize_align[AV_NUM_DATA_POINTERS]);
+
+attribute_deprecated
+int avcodec_decode_video2(AVCodecContext *avctx, AVFrame *picture,
+                         int *got_picture_ptr,
+                         const AVPacket *avpkt);
 
 /**
  * Decode a subtitle message.
@@ -2944,6 +2982,10 @@ void av_parser_close(AVCodecParserContext *s);
  * @{
  */
 
+attribute_deprecated
+int avcodec_encode_video2(AVCodecContext *avctx, AVPacket *avpkt,
+                          const AVFrame *frame, int *got_packet_ptr);
+
 int avcodec_encode_subtitle(AVCodecContext *avctx, uint8_t *buf, int buf_size,
                             const AVSubtitle *sub);
 
@@ -3061,6 +3103,18 @@ void avcodec_flush_buffers(AVCodecContext *avctx);
  */
 int av_get_audio_frame_duration(AVCodecContext *avctx, int frame_bytes);
 
+typedef struct AVBitStreamFilterContext {
+    void *priv_data;
+    const struct AVBitStreamFilter *filter;
+    AVCodecParserContext *parser;
+    struct AVBitStreamFilterContext *next;
+    /**
+     * Internal default arguments, used if NULL is passed to av_bitstream_filter_filter().
+     * Not for access by library users.
+     */
+    char *args;
+} AVBitStreamFilterContext;
+
 /* memory */
 
 /**
@@ -3077,6 +3131,16 @@ void av_fast_padded_malloc(void *ptr, unsigned int *size, size_t min_size);
  * be 0-initialized after call.
  */
 void av_fast_padded_mallocz(void *ptr, unsigned int *size, size_t min_size);
+
+enum AVLockOp {
+    AV_LOCK_CREATE,  ///< Create a mutex
+    AV_LOCK_OBTAIN,  ///< Lock the mutex
+    AV_LOCK_RELEASE, ///< Unlock the mutex
+    AV_LOCK_DESTROY, ///< Free mutex resources
+};
+
+//attribute_deprecated
+int av_lockmgr_register(int (*cb)(void **mutex, enum AVLockOp op));
 
 /**
  * @return a positive value if s is open (i.e. avcodec_open2() was called on it

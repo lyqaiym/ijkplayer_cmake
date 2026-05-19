@@ -329,6 +329,8 @@
 #endif
 
 struct AVFormatContext;
+struct AVDeviceInfoList;
+struct AVDeviceCapabilitiesQuery;
 struct AVFrame;
 
 /**
@@ -523,7 +525,7 @@ typedef struct AVOutputFormat {
     /**
      * can use flags: AVFMT_NOFILE, AVFMT_NEEDNUMBER,
      * AVFMT_GLOBALHEADER, AVFMT_NOTIMESTAMPS, AVFMT_VARIABLE_FPS,
-     * AVFMT_NODIMENSIONS, AVFMT_NOSTREAMS,
+     * AVFMT_NODIMENSIONS, AVFMT_NOSTREAMS, AVFMT_ALLOW_FLUSH,
      * AVFMT_TS_NONSTRICT, AVFMT_TS_NEGATIVE
      */
     int flags;
@@ -536,6 +538,103 @@ typedef struct AVOutputFormat {
 
 
     const AVClass *priv_class; ///< AVClass for the private context
+
+    /*****************************************************************
+     * No fields below this line are part of the public API. They
+     * may not be used outside of libavformat and can be changed and
+     * removed at will.
+     * New public fields should be added right above.
+     *****************************************************************
+     */
+    struct AVOutputFormat *next;
+    /**
+     * size of private data so that it can be allocated in the wrapper
+     */
+    int priv_data_size;
+
+    int (*write_header)(struct AVFormatContext *);
+    /**
+     * Write a packet. If AVFMT_ALLOW_FLUSH is set in flags,
+     * pkt can be NULL in order to flush data buffered in the muxer.
+     * When flushing, return 0 if there still is more data to flush,
+     * or 1 if everything was flushed and there is no more buffered
+     * data.
+     */
+    int (*write_packet)(struct AVFormatContext *, AVPacket *pkt);
+    int (*write_trailer)(struct AVFormatContext *);
+    /**
+     * Currently only used to set pixel format if not YUV420P.
+     */
+    int (*interleave_packet)(struct AVFormatContext *, AVPacket *out,
+                             AVPacket *in, int flush);
+    /**
+     * Test if the given codec can be stored in this container.
+     *
+     * @return 1 if the codec is supported, 0 if it is not.
+     *         A negative number if unknown.
+     *         MKTAG('A', 'P', 'I', 'C') if the codec is only supported as AV_DISPOSITION_ATTACHED_PIC
+     */
+    int (*query_codec)(enum AVCodecID id, int std_compliance);
+
+    void (*get_output_timestamp)(struct AVFormatContext *s, int stream,
+                                 int64_t *dts, int64_t *wall);
+    /**
+     * Allows sending messages from application to device.
+     */
+    int (*control_message)(struct AVFormatContext *s, int type,
+                           void *data, size_t data_size);
+
+    /**
+     * Write an uncoded AVFrame.
+     *
+     * See av_write_uncoded_frame() for details.
+     *
+     * The library will free *frame afterwards, but the muxer can prevent it
+     * by setting the pointer to NULL.
+     */
+    int (*write_uncoded_frame)(struct AVFormatContext *, int stream_index,
+                               AVFrame **frame, unsigned flags);
+    /**
+     * Returns device list with it properties.
+     * @see avdevice_list_devices() for more details.
+     */
+    int (*get_device_list)(struct AVFormatContext *s, struct AVDeviceInfoList *device_list);
+    /**
+     * Initialize device capabilities submodule.
+     * @see avdevice_capabilities_create() for more details.
+     */
+    int (*create_device_capabilities)(struct AVFormatContext *s, struct AVDeviceCapabilitiesQuery *caps);
+    /**
+     * Free device capabilities submodule.
+     * @see avdevice_capabilities_free() for more details.
+     */
+    int (*free_device_capabilities)(struct AVFormatContext *s, struct AVDeviceCapabilitiesQuery *caps);
+    enum AVCodecID data_codec; /**< default data codec */
+    /**
+     * Initialize format. May allocate data here, and set any AVFormatContext or
+     * AVStream parameters that need to be set before packets are sent.
+     * This method must not write output.
+     *
+     * Return 0 if streams were fully configured, 1 if not, negative AVERROR on failure
+     *
+     * Any allocations made here must be freed in deinit().
+     */
+    int (*init)(struct AVFormatContext *);
+    /**
+     * Deinitialize format. If present, this is called whenever the muxer is being
+     * destroyed, regardless of whether or not the header has been written.
+     *
+     * If a trailer is being written, this is called after write_trailer().
+     *
+     * This is called if init() fails as well.
+     */
+    void (*deinit)(struct AVFormatContext *);
+    /**
+     * Set up any necessary bitstream filtering and extract any extra data needed
+     * for the global header.
+     * Return 0 if more packets from this stream must be checked; 1 if not.
+     */
+    int (*check_bitstream)(struct AVFormatContext *, const AVPacket *pkt);
 } AVOutputFormat;
 /**
  * @}
@@ -583,6 +682,117 @@ typedef struct AVInputFormat {
      * @see av_probe_input_format2
      */
     const char *mime_type;
+
+    /*****************************************************************
+     * No fields below this line are part of the public API. They
+     * may not be used outside of libavformat and can be changed and
+     * removed at will.
+     * New public fields should be added right above.
+     *****************************************************************
+     */
+    struct AVInputFormat *next;
+
+    /**
+     * Raw demuxers store their codec ID here.
+     */
+    int raw_codec_id;
+
+    /**
+     * Size of private data so that it can be allocated in the wrapper.
+     */
+    int priv_data_size;
+
+    /**
+     * Tell if a given file has a chance of being parsed as this format.
+     * The buffer provided is guaranteed to be AVPROBE_PADDING_SIZE bytes
+     * big so you do not have to check for that unless you need more.
+     */
+    int (*read_probe)(AVProbeData *);
+
+    /**
+     * Read the format header and initialize the AVFormatContext
+     * structure. Return 0 if OK. 'avformat_new_stream' should be
+     * called to create new streams.
+     */
+    int (*read_header)(struct AVFormatContext *);
+
+    /**
+     * Used by format which open further nested input.
+     */
+    int (*read_header2)(struct AVFormatContext *, AVDictionary **options);
+
+    /**
+     * Read one packet and put it in 'pkt'. pts and flags are also
+     * set. 'avformat_new_stream' can be called only if the flag
+     * AVFMTCTX_NOHEADER is used and only in the calling thread (not in a
+     * background thread).
+     * @return 0 on success, < 0 on error.
+     *         When returning an error, pkt must not have been allocated
+     *         or must be freed before returning
+     */
+    int (*read_packet)(struct AVFormatContext *, AVPacket *pkt);
+
+    /**
+     * Close the stream. The AVFormatContext and AVStreams are not
+     * freed by this function
+     */
+    int (*read_close)(struct AVFormatContext *);
+
+    /**
+     * Seek to a given timestamp relative to the frames in
+     * stream component stream_index.
+     * @param stream_index Must not be -1.
+     * @param flags Selects which direction should be preferred if no exact
+     *              match is available.
+     * @return >= 0 on success (but not necessarily the new offset)
+     */
+    int (*read_seek)(struct AVFormatContext *,
+                     int stream_index, int64_t timestamp, int flags);
+
+    /**
+     * Get the next timestamp in stream[stream_index].time_base units.
+     * @return the timestamp or AV_NOPTS_VALUE if an error occurred
+     */
+    int64_t (*read_timestamp)(struct AVFormatContext *s, int stream_index,
+                              int64_t *pos, int64_t pos_limit);
+
+    /**
+     * Start/resume playing - only meaningful if using a network-based format
+     * (RTSP).
+     */
+    int (*read_play)(struct AVFormatContext *);
+
+    /**
+     * Pause playing - only meaningful if using a network-based format
+     * (RTSP).
+     */
+    int (*read_pause)(struct AVFormatContext *);
+
+    /**
+     * Seek to timestamp ts.
+     * Seeking will be done so that the point from which all active streams
+     * can be presented successfully will be closest to ts and within min/max_ts.
+     * Active streams are all streams that have AVStream.discard < AVDISCARD_ALL.
+     */
+    int (*read_seek2)(struct AVFormatContext *s, int stream_index, int64_t min_ts, int64_t ts, int64_t max_ts, int flags);
+
+    /**
+     * Returns device list with it properties.
+     * @see avdevice_list_devices() for more details.
+     */
+    int (*get_device_list)(struct AVFormatContext *s, struct AVDeviceInfoList *device_list);
+
+    /**
+     * Initialize device capabilities submodule.
+     * @see avdevice_capabilities_create() for more details.
+     */
+    int (*create_device_capabilities)(struct AVFormatContext *s, struct AVDeviceCapabilitiesQuery *caps);
+
+    /**
+     * Free device capabilities submodule.
+     * @see avdevice_capabilities_free() for more details.
+     */
+    int (*free_device_capabilities)(struct AVFormatContext *s, struct AVDeviceCapabilitiesQuery *caps);
 } AVInputFormat;
 /**
  * @}
@@ -1324,6 +1534,19 @@ typedef struct AVFormatContext {
      */
     AVStream **streams;
 
+#if FF_API_FORMAT_FILENAME
+
+#endif
+    /**
+     * input or output filename
+     *
+     * - demuxing: set by avformat_open_input()
+     * - muxing: may be set by the caller before avformat_write_header()
+     *
+     * @deprecated Use url instead.
+     */
+    attribute_deprecated
+    char filename[1024];
     /**
      * Number of elements in AVFormatContext.stream_groups.
      *
@@ -1919,6 +2142,8 @@ const char *avformat_configuration(void);
  */
 const char *avformat_license(void);
 
+attribute_deprecated
+void av_register_all(void);
 /**
  * Do global initialization of network libraries. This is optional,
  * and not recommended anymore.
@@ -1940,6 +2165,16 @@ int avformat_network_init(void);
  * once for each time you called avformat_network_init.
  */
 int avformat_network_deinit(void);
+
+AVInputFormat  *av_iformat_next(const AVInputFormat  *f);
+
+/**
+ * If f is NULL, returns the first registered output format,
+ * if f is non-NULL, returns the next registered output format after f
+ * or NULL if f is the last one.
+ */
+attribute_deprecated
+AVOutputFormat *av_oformat_next(const AVOutputFormat *f);
 
 /**
  * Iterate over all registered muxers.

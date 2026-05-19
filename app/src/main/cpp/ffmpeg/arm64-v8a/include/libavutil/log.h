@@ -107,6 +107,16 @@ typedef struct AVClass {
     int parent_log_context_offset;
 
     /**
+     * Return an AVClass corresponding to the next potential
+     * AVOptions-enabled child.
+     *
+     * The difference between child_next and this is that
+     * child_next iterates over _already existing_ objects, while
+     * child_class_next iterates over _all possible_ children.
+     */
+    const struct AVClass* (*child_class_next)(const struct AVClass *prev);
+
+    /**
      * Category used for visualization (like color)
      * This is only set if the category is equal for all objects using this class.
      * available since version (51 << 16 | 56 << 8 | 100)

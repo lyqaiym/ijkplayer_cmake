@@ -564,6 +564,11 @@ void av_channel_layout_uninit(AVChannelLayout *channel_layout);
 int av_channel_layout_copy(AVChannelLayout *dst, const AVChannelLayout *src);
 
 /**
+ * Return the number of channels in the channel layout.
+ */
+int av_get_channel_layout_nb_channels(uint64_t channel_layout);
+
+/**
  * Get a human-readable string describing the channel layout properties.
  * The string will be in the same format that is accepted by
  * @ref av_channel_layout_from_string(), allowing to rebuild the same
@@ -578,6 +583,11 @@ int av_channel_layout_copy(AVChannelLayout *dst, const AVChannelLayout *src);
  */
 int av_channel_layout_describe(const AVChannelLayout *channel_layout,
                                char *buf, size_t buf_size);
+
+/**
+ * Return default channel layout for a given number of channels.
+ */
+int64_t av_get_default_channel_layout(int nb_channels);
 
 /**
  * bprint variant of av_channel_layout_describe().

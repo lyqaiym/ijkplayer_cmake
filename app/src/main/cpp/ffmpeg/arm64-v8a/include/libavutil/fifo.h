@@ -31,6 +31,11 @@
 #include "attributes.h"
 #include "version.h"
 
+typedef struct AVFifoBuffer {
+    uint8_t *buffer;
+    uint8_t *rptr, *wptr, *end;
+    uint32_t rndx, wndx;
+} AVFifoBuffer;
 /**
  * @defgroup lavu_fifo AVFifo
  * @ingroup lavu_data
@@ -40,6 +45,13 @@
  */
 
 typedef struct AVFifo AVFifo;
+
+/**
+ * Initialize an AVFifoBuffer.
+ * @param size of FIFO
+ * @return AVFifoBuffer or NULL in case of memory allocation failure
+ */
+AVFifoBuffer *av_fifo_alloc(unsigned int size);
 
 /**
  * Callback for writing or reading from a FIFO, passed to (and invoked from) the
@@ -67,6 +79,18 @@ typedef int AVFifoCB(void *opaque, void *buf, size_t *nb_elems);
 #define AV_FIFO_FLAG_AUTO_GROW      (1 << 0)
 
 /**
+ * Free an AVFifoBuffer and reset pointer to NULL.
+ * @param f AVFifoBuffer to free
+ */
+void av_fifo_freep(AVFifoBuffer **f);
+
+/**
+ * Reset the AVFifoBuffer to the state right after av_fifo_alloc, in particular it is emptied.
+ * @param f AVFifoBuffer to reset
+ */
+void av_fifo_reset(AVFifoBuffer *f);
+
+/**
  * Allocate and initialize an AVFifo with a given element size.
  *
  * @param elems     initial number of elements that can be stored in the FIFO
@@ -80,16 +104,43 @@ AVFifo *av_fifo_alloc2(size_t elems, size_t elem_size,
                        unsigned int flags);
 
 /**
+ * Return the amount of data in bytes in the AVFifoBuffer, that is the
+ * amount of data you can read from it.
+ * @param f AVFifoBuffer to read from
+ * @return size
+ */
+int av_fifo_size(const AVFifoBuffer *f);
+
+/**
  * @return Element size for FIFO operations. This element size is set at
  *         FIFO allocation and remains constant during its lifetime
  */
 size_t av_fifo_elem_size(const AVFifo *f);
 
 /**
+ * Return the amount of space in bytes in the AVFifoBuffer, that is the
+ * amount of data you can write into it.
+ * @param f AVFifoBuffer to write into
+ * @return size
+ */
+int av_fifo_space(const AVFifoBuffer *f);
+
+/**
  * Set the maximum size (in elements) to which the FIFO can be resized
  * automatically. Has no effect unless AV_FIFO_FLAG_AUTO_GROW is used.
  */
 void av_fifo_auto_grow_limit(AVFifo *f, size_t max_elems);
+
+/**
+ * Feed data at specific position from an AVFifoBuffer to a user-supplied callback.
+ * Similar as av_fifo_gereric_read but without discarding data.
+ * @param f AVFifoBuffer to read from
+ * @param offset offset from current read position
+ * @param buf_size number of bytes to read
+ * @param func generic read function
+ * @param dest data destination
+ */
+int av_fifo_generic_peek_at(AVFifoBuffer *f, void *dest, int offset, int buf_size, void (*func)(void*, void*, int));
 
 /**
  * @return number of elements available for reading from the given FIFO.
@@ -139,6 +190,7 @@ int av_fifo_grow2(AVFifo *f, size_t inc);
  */
 int av_fifo_write(AVFifo *f, const void *buf, size_t nb_elems);
 
+int av_fifo_generic_write(AVFifoBuffer *f, void *src, int size, int (*func)(void*, void*, int));
 /**
  * Write data from a user-provided callback into a FIFO.
  *
@@ -185,6 +237,13 @@ int av_fifo_read(AVFifo *f, void *buf, size_t nb_elems);
  */
 int av_fifo_read_to_cb(AVFifo *f, AVFifoCB write_cb,
                        void *opaque, size_t *nb_elems);
+
+/**
+ * Read and discard the specified amount of data from an AVFifoBuffer.
+ * @param f AVFifoBuffer to read from
+ * @param size amount of data to read in bytes
+ */
+void av_fifo_drain(AVFifoBuffer *f, int size);
 
 /**
  * Read data from a FIFO without modifying FIFO state.

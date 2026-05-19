@@ -543,6 +543,10 @@ typedef struct AVFrame {
     int sample_rate;
 
     /**
+     * Channel layout of the audio data.
+     */
+    uint64_t channel_layout;
+    /**
      * AVBuffer references backing the data for this frame. All the pointers in
      * data and extended_data must point inside one of the buffers in buf or
      * extended_buf. This array must be filled contiguously -- if buf[i] is
@@ -674,6 +678,12 @@ typedef struct AVFrame {
 #define FF_DECODE_ERROR_CONCEALMENT_ACTIVE  4
 #define FF_DECODE_ERROR_DECODE_SLICES       8
 
+    /**
+     * number of audio channels, only used for audio.
+     * - encoding: unused
+     * - decoding: Read by user.
+     */
+    int channels;
 #if FF_API_FRAME_PKT
     /**
      * size of the corresponding packet containing the compressed
@@ -750,6 +760,8 @@ typedef struct AVFrame {
     int64_t duration;
 } AVFrame;
 
+attribute_deprecated
+int64_t av_frame_get_pkt_pos              (const AVFrame *frame);
 
 /**
  * Allocate an AVFrame and set its fields to default values.  The resulting

@@ -212,6 +212,16 @@ typedef struct AVCodecParameters {
      * Audio only. Number of samples to skip after a discontinuity.
      */
     int seek_preroll;
+    /**
+   * Audio only. The number of audio channels. TODO
+   */
+    int      channels;
+    /**
+     * Audio channel layout. TODO
+     * - encoding: set by user.
+     * - decoding: set by user, may be overwritten by libavcodec.
+     */
+    uint64_t channel_layout;
 } AVCodecParameters;
 
 /**
