@@ -2,7 +2,7 @@
 使用cmake编译ijkplayer
 
 下载ijkplayer
-https://github.com/bilibili/ijkplayer.git
+https://github.com/lyqaiym/ijkplayer.git
 放在app/src/main
 在 app\src\main\ijkplayer\ijkmedia\ijkplayer 下面创建 ijkversion.h
 添加
