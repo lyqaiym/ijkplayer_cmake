@@ -95,6 +95,18 @@ set_target_properties(
         PROPERTIES IMPORTED_LOCATION
         ${libswscalepath})
 
+add_library(libcrypto STATIC IMPORTED)
+set_target_properties(
+        libcrypto
+        PROPERTIES IMPORTED_LOCATION
+        ${libcryptopath})
+
+add_library(libssl STATIC IMPORTED)
+set_target_properties(
+        libssl
+        PROPERTIES IMPORTED_LOCATION
+        ${libsslpath})
+
 add_library( # Sets the name of the library.
         ijkplayer
 
@@ -172,6 +184,8 @@ target_link_libraries( # Specifies the target library.
         libavutil
         libswresample
         libswscale
+        libcrypto
+        libssl
         m
         ijkj4a
         ijksdl

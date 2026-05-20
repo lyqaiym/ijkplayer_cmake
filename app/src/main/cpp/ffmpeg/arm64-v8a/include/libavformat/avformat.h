@@ -924,6 +924,8 @@ typedef struct AVIndexEntry {
  */
 #define AV_DISPOSITION_STILL_IMAGE          (1 << 20)
 
+typedef struct AVStreamInternal AVStreamInternal;
+
 /**
  * @return The AV_DISPOSITION_* flag corresponding to disp or a negative error
  *         code if disp does not correspond to a known stream disposition.
@@ -1128,6 +1130,15 @@ typedef struct AVStream {
      *
      */
     int pts_wrap_bits;
+    /**
+    * Internal data to inject global side data
+    */
+    int inject_global_side_data;
+    /**
+     * An opaque field for libavformat internal usage.
+     * Must not be accessed in any way by callers.
+     */
+    AVStreamInternal *internal;
 } AVStream;
 
 /**
@@ -1449,6 +1460,8 @@ enum AVDurationEstimationMethod {
     AVFMT_DURATION_FROM_STREAM, ///< Duration estimated from a stream with a known duration
     AVFMT_DURATION_FROM_BITRATE ///< Duration estimated from bitrate (less accurate)
 };
+
+typedef struct AVFormatInternal AVFormatInternal;
 
 /**
  * Format I/O context.
@@ -1972,6 +1985,11 @@ typedef struct AVFormatContext {
      */
     char *format_whitelist;
 
+    /**
+     * An opaque field for libavformat internal usage.
+     * Must not be accessed in any way by callers.
+     */
+    AVFormatInternal *internal;
     /**
      * ',' separated list of allowed protocols.
      * - encoding: unused

@@ -3115,6 +3115,66 @@ typedef struct AVBitStreamFilterContext {
     char *args;
 } AVBitStreamFilterContext;
 
+typedef struct AVBSFInternal AVBSFInternal;
+/**
+ * The bitstream filter state.
+ *
+ * This struct must be allocated with av_bsf_alloc() and freed with
+ * av_bsf_free().
+ *
+ * The fields in the struct will only be changed (by the caller or by the
+ * filter) as described in their documentation, and are to be considered
+ * immutable otherwise.
+ */
+typedef struct AVBSFContext {
+    /**
+     * A class for logging and AVOptions
+     */
+    const AVClass *av_class;
+
+    /**
+     * The bitstream filter this context is an instance of.
+     */
+    const struct AVBitStreamFilter *filter;
+
+    /**
+     * Opaque libavcodec internal data. Must not be touched by the caller in any
+     * way.
+     */
+    AVBSFInternal *internal;
+
+    /**
+     * Opaque filter-specific private data. If filter->priv_class is non-NULL,
+     * this is an AVOptions-enabled struct.
+     */
+    void *priv_data;
+
+    /**
+     * Parameters of the input stream. This field is allocated in
+     * av_bsf_alloc(), it needs to be filled by the caller before
+     * av_bsf_init().
+     */
+    AVCodecParameters *par_in;
+
+    /**
+     * Parameters of the output stream. This field is allocated in
+     * av_bsf_alloc(), it is set by the filter in av_bsf_init().
+     */
+    AVCodecParameters *par_out;
+
+    /**
+     * The timebase used for the timestamps of the input packets. Set by the
+     * caller before av_bsf_init().
+     */
+    AVRational time_base_in;
+
+    /**
+     * The timebase used for the timestamps of the output packets. Set by the
+     * filter in av_bsf_init().
+     */
+    AVRational time_base_out;
+} AVBSFContext;
+
 /* memory */
 
 /**
