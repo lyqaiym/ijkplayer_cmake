@@ -118,6 +118,7 @@ add_library( # Sets the name of the library.
         ${ijkpath}/ijkmedia/ijkplayer/ff_cmdutils.c
         ${ijkpath}/ijkmedia/ijkplayer/ff_ffplay.c
         ${ijkpath}/ijkmedia/ijkplayer/ffmpeg_old.c
+        ${ijkpath}/ijkmedia/ijkplayer/async.c
         ${ijkpath}/ijkmedia/ijkplayer/ff_ffpipeline.c
         ${ijkpath}/ijkmedia/ijkplayer/ff_ffpipenode.c
         ${ijkpath}/ijkmedia/ijkplayer/ijkmeta.c
