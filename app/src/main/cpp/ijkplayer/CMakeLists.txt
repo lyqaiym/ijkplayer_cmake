@@ -47,11 +47,11 @@ set_target_properties(
         PROPERTIES IMPORTED_LOCATION
         ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libandroid-ndk-profiler.so)
 
-#add_library(ijkffmpeg SHARED IMPORTED)
-#set_target_properties(
-#        ijkffmpeg
-#        PROPERTIES IMPORTED_LOCATION
-#        ${ijkffmpegpath})
+add_library(ijkffmpeg SHARED IMPORTED)
+set_target_properties(
+        ijkffmpeg
+        PROPERTIES IMPORTED_LOCATION
+        ${ijkffmpegpath})
 
 add_library(libavcodec STATIC IMPORTED)
 set_target_properties(
@@ -178,15 +178,16 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
                        ijkplayer
-        libavcodec
-        libavdevice
-        libavfilter
-        libavformat
-        libavutil
-        libswresample
-        libswscale
-        libcrypto
-        libssl
+        #libavcodec
+        #libavdevice
+        #libavfilter
+        #libavformat
+        #libavutil
+        #libswresample
+        #libswscale
+        #libcrypto
+        #libssl
+        ijkffmpeg
         m
         ijkj4a
         ijksdl
