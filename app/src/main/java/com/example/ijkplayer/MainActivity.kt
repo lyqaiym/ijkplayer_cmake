@@ -10,13 +10,21 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView;
+import androidx.compose.runtime.*
 
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.ijkplayer.MainActivity.ScreenUtils.getScreenWidth
 
 import java.io.IOException;
 
@@ -74,8 +82,10 @@ class MainActivity : ComponentActivity() {
         val composeView = findViewById<ComposeView>(R.id.compose_view);
         // 2. 设置 Compose 内容
         composeView.setContent {
-            Button(onClick = { /* 点击事件 */ }) {
-                Text("Compose 按钮")
+            Column(modifier = Modifier.fillMaxSize()) {
+                VideoPlayer(
+                    videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4" // 测试视频
+                )
             }
         }
     }
@@ -134,6 +144,94 @@ class MainActivity : ComponentActivity() {
             val dm = DisplayMetrics();// 创建了一张白纸
             windowManager.defaultDisplay.getMetrics(dm);// 给白纸设置宽高
             return dm.heightPixels;
+        }
+    }
+}
+
+fun setOnPreparedListener(ctx: Context, ijkMediaPlayer: IjkMediaPlayer, surfaceView: SurfaceView) {
+    ijkMediaPlayer.setOnPreparedListener(object :
+        IMediaPlayer.OnPreparedListener {
+        override fun onPrepared(mp: IMediaPlayer) {
+            val videoWidth = mp.videoWidth
+            val videoHeight = mp.videoHeight
+            val screenWidth = getScreenWidth(ctx)
+
+            val layoutParams = surfaceView.layoutParams
+            layoutParams.width = screenWidth
+            layoutParams.height = screenWidth * videoHeight / videoWidth
+            surfaceView.layoutParams = layoutParams
+        }
+    })
+}
+
+@Composable
+fun VideoPlayer(
+    videoUrl: String,
+    modifier: Modifier = Modifier
+) {
+    // 1. 定义状态：默认 null，不初始化
+    var ijkMediaPlayer: IjkMediaPlayer? by remember {
+        mutableStateOf(null)
+    }
+    var sholder: SurfaceHolder? by remember {
+        mutableStateOf(null)
+    }
+    var surfaceView: SurfaceView? by remember {
+        mutableStateOf(null)
+    }
+    Box {
+        AndroidView(factory = { ctx ->
+            SurfaceView(ctx).apply {
+                surfaceView = this
+                holder.addCallback(object : SurfaceHolder.Callback {
+                    override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
+                        sholder = surfaceHolder;
+                        ijkMediaPlayer?.setDisplay(surfaceHolder)
+                        ijkMediaPlayer?.start()
+                        ijkMediaPlayer?.let { setOnPreparedListener(ctx, it, this@apply) }
+                    }
+
+                    override fun surfaceChanged(
+                        p0: SurfaceHolder,
+                        p1: Int,
+                        p2: Int,
+                        p3: Int
+                    ) {
+
+                    }
+
+                    override fun surfaceDestroyed(p0: SurfaceHolder) {
+                        ijkMediaPlayer?.pause()
+                    }
+
+                })
+            }
+        })
+        Row(modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter)) {
+            Button(onClick = {
+                if (ijkMediaPlayer == null) {
+                    ijkMediaPlayer = IjkMediaPlayer().apply {
+                        try {
+                            setDataSource(videoUrl)
+                            prepareAsync()
+                            setDisplay(sholder)
+                            surfaceView?.let {
+                                setOnPreparedListener(it.context, this, it)
+                            }
+                        } catch (e: IOException) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                ijkMediaPlayer?.start()
+            }) {
+                Text("开始")
+            }
+            Button(onClick = {
+                ijkMediaPlayer?.pause()
+            }) {
+                Text("暂停")
+            }
         }
     }
 }
