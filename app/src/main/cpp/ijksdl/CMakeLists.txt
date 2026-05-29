@@ -26,53 +26,11 @@ set_target_properties(
         PROPERTIES IMPORTED_LOCATION
         ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/liblibyuv.so)
 
-#add_library(ijkffmpeg SHARED IMPORTED)
-#set_target_properties(
-#        ijkffmpeg
-#        PROPERTIES IMPORTED_LOCATION
-#        ${ijkffmpegpath})
-
-add_library(libavcodec STATIC IMPORTED)
+add_library(ijkffmpeg SHARED IMPORTED)
 set_target_properties(
-        libavcodec
+        ijkffmpeg
         PROPERTIES IMPORTED_LOCATION
-        ${libavcodecpath})
-
-add_library(libavdevice STATIC IMPORTED)
-set_target_properties(
-        libavdevice
-        PROPERTIES IMPORTED_LOCATION
-        ${libavdevicepath})
-
-add_library(libavfilter STATIC IMPORTED)
-set_target_properties(
-        libavfilter
-        PROPERTIES IMPORTED_LOCATION
-        ${libavfilterpath})
-
-add_library(libavformat STATIC IMPORTED)
-set_target_properties(
-        libavformat
-        PROPERTIES IMPORTED_LOCATION
-        ${libavformatpath})
-
-add_library(libavutil STATIC IMPORTED)
-set_target_properties(
-        libavutil
-        PROPERTIES IMPORTED_LOCATION
-        ${libavutilpath})
-
-add_library(libswresample STATIC IMPORTED)
-set_target_properties(
-        libswresample
-        PROPERTIES IMPORTED_LOCATION
-        ${libswresamplepath})
-
-add_library(libswscale STATIC IMPORTED)
-set_target_properties(
-        libswscale
-        PROPERTIES IMPORTED_LOCATION
-        ${libswscalepath})
+        ${ijkffmpegpath})
 
 add_library( # Sets the name of the library.
         ijksdl
@@ -143,14 +101,7 @@ target_link_libraries( # Specifies the target library.
         ijksdl
         ijkj4a
         libyuv
-        #ijkffmpeg
-        libavcodec
-        libavdevice
-        libavfilter
-        libavformat
-        libavutil
-        libswresample
-        libswscale
+        ijkffmpeg
         android
         OpenSLES
         EGL

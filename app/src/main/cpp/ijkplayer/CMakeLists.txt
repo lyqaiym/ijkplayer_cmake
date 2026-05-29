@@ -53,60 +53,6 @@ set_target_properties(
         PROPERTIES IMPORTED_LOCATION
         ${ijkffmpegpath})
 
-add_library(libavcodec STATIC IMPORTED)
-set_target_properties(
-        libavcodec
-        PROPERTIES IMPORTED_LOCATION
-        ${libavcodecpath})
-
-add_library(libavdevice STATIC IMPORTED)
-set_target_properties(
-        libavdevice
-        PROPERTIES IMPORTED_LOCATION
-        ${libavdevicepath})
-
-add_library(libavfilter STATIC IMPORTED)
-set_target_properties(
-        libavfilter
-        PROPERTIES IMPORTED_LOCATION
-        ${libavfilterpath})
-
-add_library(libavformat STATIC IMPORTED)
-set_target_properties(
-        libavformat
-        PROPERTIES IMPORTED_LOCATION
-        ${libavformatpath})
-
-add_library(libavutil STATIC IMPORTED)
-set_target_properties(
-        libavutil
-        PROPERTIES IMPORTED_LOCATION
-        ${libavutilpath})
-
-add_library(libswresample STATIC IMPORTED)
-set_target_properties(
-        libswresample
-        PROPERTIES IMPORTED_LOCATION
-        ${libswresamplepath})
-
-add_library(libswscale STATIC IMPORTED)
-set_target_properties(
-        libswscale
-        PROPERTIES IMPORTED_LOCATION
-        ${libswscalepath})
-
-add_library(libcrypto STATIC IMPORTED)
-set_target_properties(
-        libcrypto
-        PROPERTIES IMPORTED_LOCATION
-        ${libcryptopath})
-
-add_library(libssl STATIC IMPORTED)
-set_target_properties(
-        libssl
-        PROPERTIES IMPORTED_LOCATION
-        ${libsslpath})
-
 add_library( # Sets the name of the library.
         ijkplayer
 
@@ -178,15 +124,6 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
                        ijkplayer
-        #libavcodec
-        #libavdevice
-        #libavfilter
-        #libavformat
-        #libavutil
-        #libswresample
-        #libswscale
-        #libcrypto
-        #libssl
         ijkffmpeg
         m
         ijkj4a
