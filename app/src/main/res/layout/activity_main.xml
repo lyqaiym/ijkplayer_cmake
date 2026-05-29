@@ -17,8 +17,15 @@
     <SurfaceView
         android:id="@+id/surface"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:layout_below="@+id/bt"
         android:layout_marginTop="20dp" />
 
+    <!-- ComposeView：用来放 Compose UI -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/compose_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/surface"
+        android:layout_marginTop="20dp" />
 </RelativeLayout>

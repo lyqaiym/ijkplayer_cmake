@@ -1,122 +1,139 @@
 package com.example.ijkplayer;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.TextView;
+import android.view.WindowManager
+import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView;
 
-import androidx.annotation.NonNull;
+import androidx.compose.ui.unit.dp
 
 import java.io.IOException;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
-public class MainActivity extends Activity {
-    IjkMediaPlayer ijkMediaPlayer;
+class MainActivity : ComponentActivity() {
+    var ijkMediaPlayer: IjkMediaPlayer? = null;
 
-    // Used to load the 'native-lib' library on application startup.
-    static {
-        System.loadLibrary("ijkplayer");
-    }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // Example of a call to a native method
-        final SurfaceView surfaceView = findViewById(R.id.surface);
-        findViewById(R.id.bt).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        val surfaceView = findViewById<SurfaceView>(R.id.surface);
+        val bt = findViewById<View>(R.id.bt)
+        bt.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(p0: View?) {
                 if (ijkMediaPlayer == null) {
-                    initMediaPlayer(surfaceView);
-                    ijkMediaPlayer.setDisplay(surfaceView.getHolder());
-                    return;
+                    initMediaPlayer(surfaceView)
+                    ijkMediaPlayer?.setDisplay(surfaceView.holder)
                 }
-                if (ijkMediaPlayer.isPlaying()) {
-                    ijkMediaPlayer.pause();
+                if (ijkMediaPlayer!!.isPlaying) {
+                    ijkMediaPlayer!!.pause()
                 } else {
-                    ijkMediaPlayer.start();
+                    ijkMediaPlayer!!.start()
                 }
             }
-        });
+        })
         surfaceView.getHolder().setFormat(PixelFormat.RGBA_8888); // 使用RGBA_8888渲染视频(必须调用)
-        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
+        surfaceView.getHolder().addCallback(object : SurfaceHolder.Callback {
+            override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
                 if (ijkMediaPlayer != null) {
-                    ijkMediaPlayer.setDisplay(surfaceHolder);
-                    ijkMediaPlayer.start();
+                    ijkMediaPlayer?.setDisplay(surfaceHolder);
+                    ijkMediaPlayer?.start();
                 }
             }
 
-            @Override
-            public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+            override fun surfaceChanged(
+                surfaceHolder: SurfaceHolder,
+                i: Int,
+                i1: Int,
+                i2: Int
+            ) {
 
             }
 
-            @Override
-            public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
+            override fun surfaceDestroyed(surfaceHolder: SurfaceHolder) {
                 if (ijkMediaPlayer != null) {
-                    ijkMediaPlayer.pause();
+                    ijkMediaPlayer?.pause();
                 }
             }
         });
+        // 1. 找到 XML 里的 ComposeView
+        val composeView = findViewById<ComposeView>(R.id.compose_view);
+        // 2. 设置 Compose 内容
+        composeView.setContent {
+            Button(onClick = { /* 点击事件 */ }) {
+                Text("Compose 按钮")
+            }
+        }
     }
 
-    private void initMediaPlayer(final SurfaceView surfaceView) {
-        ijkMediaPlayer = new IjkMediaPlayer();
+    private fun initMediaPlayer(surfaceView: SurfaceView) {
+        ijkMediaPlayer = IjkMediaPlayer();
         try {
 //            ijkMediaPlayer.setDataSource("https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8");
-            ijkMediaPlayer.setDataSource("https://www.w3schools.com/html/mov_bbb.mp4");
-            ijkMediaPlayer.prepareAsync();
-        } catch (IOException e) {
+            ijkMediaPlayer?.setDataSource("https://www.w3schools.com/html/mov_bbb.mp4");
+            ijkMediaPlayer?.prepareAsync();
+        } catch (e: IOException) {
             e.printStackTrace();
         }
-        ijkMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(IMediaPlayer mp) {
-                int videoWidth = mp.getVideoWidth();
-                int videoHeight = mp.getVideoHeight();
-                int screenWidth = getScreenWidth(MainActivity.this);
-                ViewGroup.LayoutParams layoutParams = surfaceView.getLayoutParams();
-                layoutParams.width = screenWidth;
-                layoutParams.height = screenWidth * videoHeight / videoWidth;
-                surfaceView.setLayoutParams(layoutParams);
+        ijkMediaPlayer?.setOnPreparedListener(object : IMediaPlayer.OnPreparedListener {
+            override fun onPrepared(mp: IMediaPlayer) {
+                val videoWidth = mp.videoWidth
+                val videoHeight = mp.videoHeight
+                val screenWidth = getScreenWidth(this@MainActivity)
+
+                val layoutParams = surfaceView.layoutParams
+                layoutParams.width = screenWidth
+                layoutParams.height = screenWidth * videoHeight / videoWidth
+                surfaceView.layoutParams = layoutParams
             }
-        });
+        })
     }
 
     @Override
-    protected void onDestroy() {
+    override fun onDestroy() {
         super.onDestroy();
         if (ijkMediaPlayer != null) {
-            ijkMediaPlayer.release();
+            ijkMediaPlayer?.release();
         }
     }
 
-    public static int getScreenWidth(Context context) {
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context
-                .WINDOW_SERVICE);
-        DisplayMetrics dm = new DisplayMetrics();// 创建了一张白纸
-        windowManager.getDefaultDisplay().getMetrics(dm);// 给白纸设置宽高
-        return dm.widthPixels;
-    }
+    companion object ScreenUtils {
+        // 这个就是 Java 的 static{} ！！！
+        init {
+            // 类加载时自动执行一次
+            System.loadLibrary("ijkplayer");
+            Log.d("Player", "静态初始化")
+        }
 
-    public static int getScreenHeight(Context context) {
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context
-                .WINDOW_SERVICE);
-        DisplayMetrics dm = new DisplayMetrics();// 创建了一张白纸
-        windowManager.getDefaultDisplay().getMetrics(dm);// 给白纸设置宽高
-        return dm.heightPixels;
+        fun getScreenWidth(context: Context): Int {
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val dm = DisplayMetrics()
+            windowManager.defaultDisplay.getMetrics(dm)
+            return dm.widthPixels
+        }
+
+        fun getScreenHeight(context: Context): Int {
+            val windowManager = context.getSystemService(
+                Context
+                    .WINDOW_SERVICE
+            ) as WindowManager
+            val dm = DisplayMetrics();// 创建了一张白纸
+            windowManager.defaultDisplay.getMetrics(dm);// 给白纸设置宽高
+            return dm.heightPixels;
+        }
     }
 }
