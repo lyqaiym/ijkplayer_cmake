@@ -3,6 +3,8 @@ package com.example.ijkplayer;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
+import android.os.Handler
+import android.os.Looper
 import android.util.DisplayMetrics;
 import android.util.Log
 import android.view.SurfaceHolder;
@@ -14,7 +16,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Slider
+import androidx.compose.material.SliderDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -22,9 +29,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView;
 import androidx.compose.runtime.*
+import androidx.compose.ui.unit.dp
 
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.ijkplayer.MainActivity.ScreenUtils.getScreenWidth
+import kotlinx.coroutines.delay
 
 import java.io.IOException;
 
@@ -32,6 +41,7 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 class MainActivity : ComponentActivity() {
+    val TAG = "MainActivityLog"
     var ijkMediaPlayer: IjkMediaPlayer? = null;
 
 
@@ -52,6 +62,17 @@ class MainActivity : ComponentActivity() {
                 } else {
                     ijkMediaPlayer!!.start()
                 }
+                var h = Handler(Looper.getMainLooper())
+                h.postDelayed(object : Runnable {
+                    override fun run() {
+                        val duration = ijkMediaPlayer?.duration
+                        val currentPosition = ijkMediaPlayer?.currentPosition
+                        Log.d(TAG, "duration=" + duration + ",c=" + currentPosition);
+                        if (ijkMediaPlayer != null) {
+                            h.postDelayed(this, 1000)
+                        }
+                    }
+                }, 1000)
             }
         })
         surfaceView.getHolder().setFormat(PixelFormat.RGBA_8888); // 使用RGBA_8888渲染视频(必须调用)
@@ -64,10 +85,7 @@ class MainActivity : ComponentActivity() {
             }
 
             override fun surfaceChanged(
-                surfaceHolder: SurfaceHolder,
-                i: Int,
-                i1: Int,
-                i2: Int
+                surfaceHolder: SurfaceHolder, i: Int, i1: Int, i2: Int
             ) {
 
             }
@@ -84,7 +102,8 @@ class MainActivity : ComponentActivity() {
         composeView.setContent {
             Column(modifier = Modifier.fillMaxSize()) {
                 VideoPlayer(
-                    videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4" // 测试视频
+//                    videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4" // 测试视频
+                    videoUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" // 测试视频
                 )
             }
         }
@@ -93,8 +112,8 @@ class MainActivity : ComponentActivity() {
     private fun initMediaPlayer(surfaceView: SurfaceView) {
         ijkMediaPlayer = IjkMediaPlayer();
         try {
-//            ijkMediaPlayer.setDataSource("https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8");
-            ijkMediaPlayer?.setDataSource("https://www.w3schools.com/html/mov_bbb.mp4");
+            ijkMediaPlayer?.setDataSource("https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8");
+//            ijkMediaPlayer?.setDataSource("https://www.w3schools.com/html/mov_bbb.mp4");
             ijkMediaPlayer?.prepareAsync();
         } catch (e: IOException) {
             e.printStackTrace();
@@ -138,8 +157,7 @@ class MainActivity : ComponentActivity() {
 
         fun getScreenHeight(context: Context): Int {
             val windowManager = context.getSystemService(
-                Context
-                    .WINDOW_SERVICE
+                Context.WINDOW_SERVICE
             ) as WindowManager
             val dm = DisplayMetrics();// 创建了一张白纸
             windowManager.defaultDisplay.getMetrics(dm);// 给白纸设置宽高
@@ -149,8 +167,7 @@ class MainActivity : ComponentActivity() {
 }
 
 fun setOnPreparedListener(ctx: Context, ijkMediaPlayer: IjkMediaPlayer, surfaceView: SurfaceView) {
-    ijkMediaPlayer.setOnPreparedListener(object :
-        IMediaPlayer.OnPreparedListener {
+    ijkMediaPlayer.setOnPreparedListener(object : IMediaPlayer.OnPreparedListener {
         override fun onPrepared(mp: IMediaPlayer) {
             val videoWidth = mp.videoWidth
             val videoHeight = mp.videoHeight
@@ -166,8 +183,7 @@ fun setOnPreparedListener(ctx: Context, ijkMediaPlayer: IjkMediaPlayer, surfaceV
 
 @Composable
 fun VideoPlayer(
-    videoUrl: String,
-    modifier: Modifier = Modifier
+    videoUrl: String, modifier: Modifier = Modifier
 ) {
     // 1. 定义状态：默认 null，不初始化
     var ijkMediaPlayer: IjkMediaPlayer? by remember {
@@ -179,33 +195,32 @@ fun VideoPlayer(
     var surfaceView: SurfaceView? by remember {
         mutableStateOf(null)
     }
+    var currentPosition by remember { mutableStateOf(0L) } // 真实进度（ms）
+    var totalDuration by remember { mutableStateOf(0L) }    // 总时长（ms）
+
     Box {
         AndroidView(factory = { ctx ->
             SurfaceView(ctx).apply {
                 surfaceView = this
-                holder.addCallback(object : SurfaceHolder.Callback {
-                    override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
-                        sholder = surfaceHolder;
-                        ijkMediaPlayer?.setDisplay(surfaceHolder)
-                        ijkMediaPlayer?.start()
-                        ijkMediaPlayer?.let { setOnPreparedListener(ctx, it, this@apply) }
-                    }
-
-                    override fun surfaceChanged(
-                        p0: SurfaceHolder,
-                        p1: Int,
-                        p2: Int,
-                        p3: Int
-                    ) {
-
-                    }
-
-                    override fun surfaceDestroyed(p0: SurfaceHolder) {
-                        ijkMediaPlayer?.pause()
-                    }
-
-                })
             }
+        }, update = { view ->
+            view.holder.addCallback(object : SurfaceHolder.Callback {
+                override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
+                    sholder = surfaceHolder;
+                    ijkMediaPlayer?.setDisplay(surfaceHolder)
+                    ijkMediaPlayer?.start()
+                    ijkMediaPlayer?.let { setOnPreparedListener(view.context, it, view) }
+                }
+
+                override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun surfaceDestroyed(p0: SurfaceHolder) {
+                    ijkMediaPlayer?.pause()
+                }
+
+            })
         })
         Row(modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter)) {
             Button(onClick = {
@@ -227,11 +242,65 @@ fun VideoPlayer(
             }) {
                 Text("开始")
             }
+            // 👇 进度条（可拖动）
+            Slider(
+//                value = if (totalDuration > 0) {
+//                    (currentPosition * 100f / totalDuration).coerceIn(0f, 100f)
+//                } else {
+//                    0f
+//                },
+                value = currentPosition.toFloat(),
+                onValueChange = { percent ->
+//                    if (totalDuration > 0) {
+//                        // 百分比 → 真实进度
+//                        val seekPos = (percent * totalDuration / 100f).toLong()
+//                        currentPosition = seekPos
+//                        ijkMediaPlayer?.seekTo(seekPos)
+//                    }
+                    currentPosition = percent.toLong()
+                    ijkMediaPlayer?.seekTo(currentPosition)
+                },
+//                valueRange = 0f..100f, // ✅ 固定 0-100
+                valueRange = 0f..if (totalDuration > 0) totalDuration.toFloat() else 1f, // ✅ 固定 0-100
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp),
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colors.primary,
+                    activeTrackColor = MaterialTheme.colors.primary
+                )
+            )
             Button(onClick = {
                 ijkMediaPlayer?.pause()
             }) {
                 Text("暂停")
             }
+        }
+    }
+
+    // 自动刷新进度（核心）
+    LaunchedEffect(ijkMediaPlayer) {
+        while (true) {
+            ijkMediaPlayer?.let { player ->
+                if (player.isPlaying) {
+                    currentPosition = player.currentPosition
+                    totalDuration = player.duration
+                    Log.d("LaunchedEffect", "duration=" + totalDuration + ",c=" + currentPosition)
+//                    if (totalDuration <= 0) {
+//
+//                    }
+//                    totalDuration = 18058238
+                }
+            }
+            delay(1000) // 每1000ms刷新一次
+        }
+    }
+    // 页面退出释放播放器
+    DisposableEffect(Unit) {
+        onDispose {
+            ijkMediaPlayer?.stop()
+            ijkMediaPlayer?.release()
+            ijkMediaPlayer = null
         }
     }
 }

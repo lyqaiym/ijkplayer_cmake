@@ -5,6 +5,11 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
+set(CMAKE_STRIP "")
+
 set(ijkpath ${CMAKE_CURRENT_SOURCE_DIR}/../ijkplayer)
 message(STATUS "ijkpath=${ijkpath}")
 
