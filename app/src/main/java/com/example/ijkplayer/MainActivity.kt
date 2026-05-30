@@ -32,8 +32,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.ViewModel
 import com.example.ijkplayer.MainActivity.ScreenUtils.getScreenWidth
 import kotlinx.coroutines.delay
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 import java.io.IOException;
 
@@ -104,6 +106,7 @@ class MainActivity : ComponentActivity() {
                 VideoPlayer(
 //                    videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4" // 测试视频
                     videoUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" // 测试视频
+//                    videoUrl = "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8" // 测试视频
                 )
             }
         }
@@ -183,7 +186,7 @@ fun setOnPreparedListener(ctx: Context, ijkMediaPlayer: IjkMediaPlayer, surfaceV
 
 @Composable
 fun VideoPlayer(
-    videoUrl: String, modifier: Modifier = Modifier
+    videoUrl: String, modifier: Modifier = Modifier,vm: MainViewModel = viewModel()
 ) {
     // 1. 定义状态：默认 null，不初始化
     var ijkMediaPlayer: IjkMediaPlayer? by remember {
@@ -244,24 +247,21 @@ fun VideoPlayer(
             }
             // 👇 进度条（可拖动）
             Slider(
-//                value = if (totalDuration > 0) {
-//                    (currentPosition * 100f / totalDuration).coerceIn(0f, 100f)
-//                } else {
-//                    0f
-//                },
-                value = currentPosition.toFloat(),
-                onValueChange = { percent ->
-//                    if (totalDuration > 0) {
-//                        // 百分比 → 真实进度
-//                        val seekPos = (percent * totalDuration / 100f).toLong()
-//                        currentPosition = seekPos
-//                        ijkMediaPlayer?.seekTo(seekPos)
-//                    }
-                    currentPosition = percent.toLong()
-                    ijkMediaPlayer?.seekTo(currentPosition)
+                value = if (totalDuration > 0) {
+                    (currentPosition * 100f / totalDuration).coerceIn(0f, 100f)
+                } else {
+                    0f
                 },
-//                valueRange = 0f..100f, // ✅ 固定 0-100
-                valueRange = 0f..if (totalDuration > 0) totalDuration.toFloat() else 1f, // ✅ 固定 0-100
+                onValueChange = { percent ->
+                    if (totalDuration > 0) {
+                        // 百分比 → 真实进度
+                        val seekPos = (percent * totalDuration / 100f).toLong()
+                        currentPosition = seekPos
+                        ijkMediaPlayer?.seekTo(seekPos)
+                        Log.d("LaunchedEffect", "percent=" + percent + ",seekPos=" + seekPos)
+                    }
+                },
+                valueRange = 0f..100f, // ✅ 固定 0-100
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp),
@@ -285,11 +285,8 @@ fun VideoPlayer(
                 if (player.isPlaying) {
                     currentPosition = player.currentPosition
                     totalDuration = player.duration
-                    Log.d("LaunchedEffect", "duration=" + totalDuration + ",c=" + currentPosition)
-//                    if (totalDuration <= 0) {
-//
-//                    }
-//                    totalDuration = 18058238
+                    var f = (currentPosition * 100f / totalDuration).coerceIn(0f, 100f)
+                    Log.d("LaunchedEffect", "duration=" + totalDuration + ",c=" + currentPosition+",f="+f)
                 }
             }
             delay(1000) // 每1000ms刷新一次
