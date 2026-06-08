@@ -545,7 +545,7 @@ typedef struct AVFrame {
     /**
      * Channel layout of the audio data.
      */
-    uint64_t channel_layout;
+//    uint64_t channel_layout;
     /**
      * AVBuffer references backing the data for this frame. All the pointers in
      * data and extended_data must point inside one of the buffers in buf or
@@ -683,7 +683,7 @@ typedef struct AVFrame {
      * - encoding: unused
      * - decoding: Read by user.
      */
-    int channels;
+//    int channels;
 #if FF_API_FRAME_PKT
     /**
      * size of the corresponding packet containing the compressed

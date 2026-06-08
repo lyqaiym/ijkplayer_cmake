@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
         composeView.setContent {
             Column(modifier = Modifier.fillMaxSize()) {
                 VideoPlayer(
-//                    videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4" // 测试视频
+//                    videoUrl = "https://sf1-cdn-tos.huoshanstatic.com/obj/media-fe/xgplayer_doc_video/mp4/xgplayer-demo-360p.mp4" // 测试视频
                     videoUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" // 测试视频
 //                    videoUrl = "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8" // 测试视频
                 )
@@ -133,6 +133,11 @@ class MainActivity : ComponentActivity() {
                 surfaceView.layoutParams = layoutParams
             }
         })
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
     }
 
     @Override
