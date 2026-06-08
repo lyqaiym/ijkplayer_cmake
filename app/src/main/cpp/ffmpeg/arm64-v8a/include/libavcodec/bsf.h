@@ -28,6 +28,7 @@
 #include "codec_id.h"
 #include "codec_par.h"
 #include "packet.h"
+#include "libavutil/rational.h"
 
 /**
  * @defgroup lavc_bsf Bitstream filters

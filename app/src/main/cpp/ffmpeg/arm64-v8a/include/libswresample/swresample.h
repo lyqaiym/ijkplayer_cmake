@@ -49,8 +49,8 @@
  * matrix). This is using the swr_alloc() function.
  * @code
  * SwrContext *swr = swr_alloc();
- * av_opt_set_channel_layout(swr, "in_channel_layout",  AV_CH_LAYOUT_5POINT1, 0);
- * av_opt_set_channel_layout(swr, "out_channel_layout", AV_CH_LAYOUT_STEREO,  0);
+ * av_opt_set_chlayout(swr, "in_chlayout", &(AVChannelLayout)AV_CHANNEL_LAYOUT_5POINT1, 0);
+ * av_opt_set_chlayout(swr, "out_chlayout", &(AVChannelLayout)AV_CHANNEL_LAYOUT_STEREO, 0);
  * av_opt_set_int(swr, "in_sample_rate",     48000,                0);
  * av_opt_set_int(swr, "out_sample_rate",    44100,                0);
  * av_opt_set_sample_fmt(swr, "in_sample_fmt",  AV_SAMPLE_FMT_FLTP, 0);
@@ -256,10 +256,6 @@ int swr_is_initialized(struct SwrContext *s);
  * @return 0 on success, a negative AVERROR code on error.
  *         On error, the Swr context is freed and *ps set to NULL.
  */
-struct SwrContext *swr_alloc_set_opts(struct SwrContext *s,
-                                      int64_t out_ch_layout, enum AVSampleFormat out_sample_fmt, int out_sample_rate,
-                                      int64_t  in_ch_layout, enum AVSampleFormat  in_sample_fmt, int  in_sample_rate,
-                                      int log_offset, void *log_ctx);
 int swr_alloc_set_opts2(struct SwrContext **ps,
                         const AVChannelLayout *out_ch_layout, enum AVSampleFormat out_sample_fmt, int out_sample_rate,
                         const AVChannelLayout *in_ch_layout, enum AVSampleFormat  in_sample_fmt, int  in_sample_rate,
@@ -341,7 +337,7 @@ int64_t swr_next_pts(struct SwrContext *s, int64_t pts);
  * @}
  *
  * @name Low-level option setting functions
- * These functons provide a means to set low-level options that is not possible
+ * These functions provide a means to set low-level options that is not possible
  * with the AVOption API.
  * @{
  */

@@ -1233,10 +1233,10 @@ typedef struct AVChapter {
  * Callback used by devices to communicate with application.
  */
 typedef int (*av_format_control_message)(struct AVFormatContext *s, int type,
-        void *data, size_t data_size);
+                                         void *data, size_t data_size);
 
 typedef int (*AVOpenCallback)(struct AVFormatContext *s, AVIOContext **pb, const char *url, int flags,
-        const AVIOInterruptCB *int_cb, AVDictionary **options);
+                              const AVIOInterruptCB *int_cb, AVDictionary **options);
 
 /**
  * The duration of a video can be estimated through various ways, and this enum can be used
@@ -1863,7 +1863,7 @@ typedef struct AVFormatContext {
      * It will, however, have the same 'opaque' field.
      */
     int (*io_open)(struct AVFormatContext *s, AVIOContext **pb, const char *url,
-            int flags, AVDictionary **options);
+                   int flags, AVDictionary **options);
 
     /**
      * A callback for closing the streams opened with AVFormatContext.io_open().
@@ -1913,23 +1913,6 @@ const char *avformat_configuration(void);
  * Return the libavformat license.
  */
 const char *avformat_license(void);
-
-
-/**
- * Initialize libavformat and register all the muxers, demuxers and
- * protocols. If you do not call this function, then you can select
- * exactly which formats you want to support.
- *
- * @see av_register_input_format()
- * @see av_register_output_format()
- */
-attribute_deprecated
-void av_register_all(void);
-
-attribute_deprecated
-void av_register_input_format(AVInputFormat *format);
-attribute_deprecated
-void av_register_output_format(AVOutputFormat *format);
 
 /**
  * Do global initialization of network libraries. This is optional,
@@ -2037,8 +2020,8 @@ const char *avformat_stream_group_name(enum AVStreamGroupParamsType type);
  * @see avformat_new_stream, avformat_stream_group_add_stream.
  */
 AVStreamGroup *avformat_stream_group_create(AVFormatContext *s,
-        enum AVStreamGroupParamsType type,
-        AVDictionary **options);
+                                            enum AVStreamGroupParamsType type,
+                                            AVDictionary **options);
 
 /**
  * Add a new stream to a media file.
@@ -2109,7 +2092,7 @@ AVProgram *av_new_program(AVFormatContext *s, int id);
  *          failure
  */
 int avformat_alloc_output_context2(AVFormatContext **ctx, const AVOutputFormat *oformat,
-        const char *format_name, const char *filename);
+                                   const char *format_name, const char *filename);
 
 /**
  * @addtogroup lavf_decoding
@@ -2143,7 +2126,7 @@ const AVInputFormat *av_probe_input_format(const AVProbeData *pd, int is_opened)
  *                  to retry with a larger probe buffer.
  */
 const AVInputFormat *av_probe_input_format2(const AVProbeData *pd,
-        int is_opened, int *score_max);
+                                            int is_opened, int *score_max);
 
 /**
  * Guess the file format.
@@ -2153,7 +2136,7 @@ const AVInputFormat *av_probe_input_format2(const AVProbeData *pd,
  * @param score_ret The score of the best detection.
  */
 const AVInputFormat *av_probe_input_format3(const AVProbeData *pd,
-        int is_opened, int *score_ret);
+                                            int is_opened, int *score_ret);
 
 /**
  * Probe a bytestream to determine the input format. Each time a probe returns
@@ -2173,15 +2156,15 @@ const AVInputFormat *av_probe_input_format3(const AVProbeData *pd,
  *         AVERROR code otherwise
  */
 int av_probe_input_buffer2(AVIOContext *pb, const AVInputFormat **fmt,
-        const char *url, void *logctx,
-        unsigned int offset, unsigned int max_probe_size);
+                           const char *url, void *logctx,
+                           unsigned int offset, unsigned int max_probe_size);
 
 /**
  * Like av_probe_input_buffer2() but returns 0 on success
  */
 int av_probe_input_buffer(AVIOContext *pb, const AVInputFormat **fmt,
-        const char *url, void *logctx,
-        unsigned int offset, unsigned int max_probe_size);
+                          const char *url, void *logctx,
+                          unsigned int offset, unsigned int max_probe_size);
 
 /**
  * Open an input stream and read the header. The codecs are not opened.
@@ -2207,7 +2190,7 @@ int av_probe_input_buffer(AVIOContext *pb, const AVInputFormat **fmt,
  * @note If you want to use custom IO, preallocate the format context and set its pb field.
  */
 int avformat_open_input(AVFormatContext **ps, const char *url,
-        const AVInputFormat *fmt, AVDictionary **options);
+                        const AVInputFormat *fmt, AVDictionary **options);
 
 /**
  * Read packets of a media file to get stream information. This
@@ -2274,11 +2257,11 @@ void av_program_add_stream_index(AVFormatContext *ac, int progid, unsigned int i
  *        NULL, then *decoder_ret is guaranteed to be set to a valid AVCodec.
  */
 int av_find_best_stream(AVFormatContext *ic,
-        enum AVMediaType type,
-        int wanted_stream_nb,
-        int related_stream,
-        const struct AVCodec **decoder_ret,
-        int flags);
+                        enum AVMediaType type,
+                        int wanted_stream_nb,
+                        int related_stream,
+                        const struct AVCodec **decoder_ret,
+                        int flags);
 
 /**
  * Return the next frame of a stream.
@@ -2324,7 +2307,7 @@ int av_read_frame(AVFormatContext *s, AVPacket *pkt);
  * @return >= 0 on success
  */
 int av_seek_frame(AVFormatContext *s, int stream_index, int64_t timestamp,
-        int flags);
+                  int flags);
 
 /**
  * Seek to timestamp ts.
@@ -2648,7 +2631,7 @@ int av_interleaved_write_frame(AVFormatContext *s, AVPacket *pkt);
  * See av_interleaved_write_uncoded_frame() for details.
  */
 int av_write_uncoded_frame(AVFormatContext *s, int stream_index,
-        struct AVFrame *frame);
+                           struct AVFrame *frame);
 
 /**
  * Write an uncoded frame to an output media file.
@@ -2667,7 +2650,7 @@ int av_write_uncoded_frame(AVFormatContext *s, int stream_index,
  * @return  >=0 for success, a negative code on error
  */
 int av_interleaved_write_uncoded_frame(AVFormatContext *s, int stream_index,
-        struct AVFrame *frame);
+                                       struct AVFrame *frame);
 
 /**
  * Test whether a muxer supports uncoded frame.
@@ -2701,15 +2684,15 @@ int av_write_trailer(AVFormatContext *s);
  *                   MIME type of the registered formats
  */
 const AVOutputFormat *av_guess_format(const char *short_name,
-        const char *filename,
-        const char *mime_type);
+                                      const char *filename,
+                                      const char *mime_type);
 
 /**
  * Guess the codec ID based upon muxer and filename.
  */
 enum AVCodecID av_guess_codec(const AVOutputFormat *fmt, const char *short_name,
-        const char *filename, const char *mime_type,
-        enum AVMediaType type);
+                              const char *filename, const char *mime_type,
+                              enum AVMediaType type);
 
 /**
  * Get timing information for the data currently output.
@@ -2729,7 +2712,7 @@ enum AVCodecID av_guess_codec(const AVOutputFormat *fmt, const char *short_name,
  *       atomically.
  */
 int av_get_output_timestamp(struct AVFormatContext *s, int stream,
-        int64_t *dts, int64_t *wall);
+                            int64_t *dts, int64_t *wall);
 
 
 /**
@@ -2794,7 +2777,7 @@ void av_pkt_dump2(FILE *f, const AVPacket *pkt, int dump_payload, const AVStream
  * @param st AVStream that the packet belongs to
  */
 void av_pkt_dump_log2(void *avcl, int level, const AVPacket *pkt, int dump_payload,
-        const AVStream *st);
+                      const AVStream *st);
 
 /**
  * Get the AVCodecID for the given codec tag tag.
@@ -2826,7 +2809,7 @@ unsigned int av_codec_get_tag(const struct AVCodecTag * const *tags, enum AVCode
  * @return 0 if id was not found in tags, > 0 if it was found
  */
 int av_codec_get_tag2(const struct AVCodecTag * const *tags, enum AVCodecID id,
-        unsigned int *tag);
+                      unsigned int *tag);
 
 int av_find_default_stream_index(AVFormatContext *s);
 
@@ -2880,8 +2863,8 @@ const AVIndexEntry *avformat_index_get_entry(AVStream *st, int idx);
  *       as input argument is called.
  */
 const AVIndexEntry *avformat_index_get_entry_from_timestamp(AVStream *st,
-        int64_t wanted_timestamp,
-        int flags);
+                                                            int64_t wanted_timestamp,
+                                                            int flags);
 /**
  * Add an index entry into a sorted list. Update the entry if the list
  * already contains it.
@@ -2889,7 +2872,7 @@ const AVIndexEntry *avformat_index_get_entry_from_timestamp(AVStream *st,
  * @param timestamp timestamp in the time base of the given stream
  */
 int av_add_index_entry(AVStream *st, int64_t pos, int64_t timestamp,
-        int size, int distance, int flags);
+                       int size, int distance, int flags);
 
 
 /**
@@ -2912,11 +2895,11 @@ int av_add_index_entry(AVStream *st, int64_t pos, int64_t timestamp,
  * @param url the URL to split
  */
 void av_url_split(char *proto,         int proto_size,
-        char *authorization, int authorization_size,
-        char *hostname,      int hostname_size,
-        int *port_ptr,
-        char *path,          int path_size,
-        const char *url);
+                  char *authorization, int authorization_size,
+                  char *hostname,      int hostname_size,
+                  int *port_ptr,
+                  char *path,          int path_size,
+                  const char *url);
 
 
 /**
@@ -2930,9 +2913,9 @@ void av_url_split(char *proto,         int proto_size,
  * @param is_output Select whether the specified context is an input(0) or output(1)
  */
 void av_dump_format(AVFormatContext *ic,
-        int index,
-        const char *url,
-        int is_output);
+                    int index,
+                    const char *url,
+                    int is_output);
 
 
 #define AV_FRAME_FILENAME_FLAGS_MULTIPLE          1  ///< Allow multiple %d
@@ -2952,10 +2935,10 @@ void av_dump_format(AVFormatContext *ic,
  * @return 0 if OK, -1 on format error
  */
 int av_get_frame_filename2(char *buf, int buf_size,
-        const char *path, int number, int flags);
+                          const char *path, int number, int flags);
 
 int av_get_frame_filename(char *buf, int buf_size,
-        const char *path, int number);
+                          const char *path, int number);
 
 /**
  * Check whether filename actually is a numbered sequence generator.
@@ -3004,7 +2987,7 @@ int av_match_ext(const char *filename, const char *extensions);
  *         A negative number if this information is not available.
  */
 int avformat_query_codec(const AVOutputFormat *ofmt, enum AVCodecID codec_id,
-        int std_compliance);
+                         int std_compliance);
 
 struct AVBPrint;
 /**
@@ -3018,7 +3001,7 @@ struct AVBPrint;
  * @return <0 on error
  */
 int av_mime_codec_str(const AVCodecParameters *par,
-        AVRational frame_rate, struct AVBPrint *out);
+                      AVRational frame_rate, struct AVBPrint *out);
 
 /**
  * @defgroup riff_fourcc RIFF FourCCs
@@ -3071,7 +3054,7 @@ const struct AVCodecTag *avformat_get_mov_audio_tags(void);
  * @return the guessed (valid) sample_aspect_ratio, 0/1 if no idea
  */
 AVRational av_guess_sample_aspect_ratio(AVFormatContext *format, AVStream *stream,
-        struct AVFrame *frame);
+                                        struct AVFrame *frame);
 
 /**
  * Guess the frame rate, based on both the container and codec information.
@@ -3082,7 +3065,7 @@ AVRational av_guess_sample_aspect_ratio(AVFormatContext *format, AVStream *strea
  * @return the guessed (valid) frame rate, 0/1 if no idea
  */
 AVRational av_guess_frame_rate(AVFormatContext *ctx, AVStream *stream,
-        struct AVFrame *frame);
+                               struct AVFrame *frame);
 
 /**
  * Check if the stream st contained in s is matched by the stream specifier
@@ -3098,7 +3081,7 @@ AVRational av_guess_frame_rate(AVFormatContext *ctx, AVStream *stream,
  * @note  A stream specifier can match several streams in the format.
  */
 int avformat_match_stream_specifier(AVFormatContext *s, AVStream *st,
-        const char *spec);
+                                    const char *spec);
 
 int avformat_queue_attached_pictures(AVFormatContext *s);
 

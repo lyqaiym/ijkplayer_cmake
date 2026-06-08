@@ -14,7 +14,7 @@ include_directories(./FFmpeg)
 include_directories(./FFmpeg/libavformat)
 include_directories(./FFmpeg/libavutil)
 include_directories(./FFmpeg/compat/avisynth/avs)
-
+include_directories(./FFmpeg/${CMAKE_ANDROID_ARCH_ABI}/include)
 
 add_library( # Sets the name of the library.
         ffmpeg

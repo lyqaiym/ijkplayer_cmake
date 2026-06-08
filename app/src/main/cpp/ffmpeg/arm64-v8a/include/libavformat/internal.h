@@ -26,6 +26,7 @@
 #include "libavutil/bprint.h"
 #include "avformat.h"
 #include "os_support.h"
+#include "libavcodec/bsf.h"
 
 #define MAX_URL_SIZE 4096
 
